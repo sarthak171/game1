@@ -1,5 +1,9 @@
 var socket = io();
 var id;
+var size = {
+  width: window.innerWidth || document.body.clientWidth,
+  height: window.innerHeight || document.body.clientHeight
+};
 
 socket.on('message', function(data) {
   console.log(data);
@@ -16,6 +20,7 @@ var movement = {
   left: false,
   right: false
 }
+
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
     case 65: // A
@@ -52,12 +57,20 @@ document.addEventListener('keyup', function(event) {
 
 socket.emit('new player');
 setInterval(function() {
+  updateSize();
   socket.emit('movement', movement);
 }, 1000 / 60);
 
+function updateSize() {
+  size = {
+    width: window.innerWidth || document.body.clientWidth,
+    height: window.innerHeight || document.body.clientHeight
+  }
+}
+
 var canvas = document.getElementById('canvas');
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = size.width;
+canvas.height = size.height;
 var ctx = canvas.getContext('2d');
 
 socket.on('state', function(players) {
@@ -65,36 +78,47 @@ socket.on('state', function(players) {
     return;
   }
 
+  canvas.width = size.width;
+  canvas.height = size.height;
+
   var player = players[id];
 
   ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, 800, 600);
+  ctx.fillRect(0, 0, size.width, size.height);
 
+  drawGraph(player.x, player.y, 50);
+  drawPlayers(player.x, player.y, players);
+
+});
+
+function drawGraph(x, y, dist) {
   ctx.strokeStyle = 'white';
   var i;
-  for(i = -player.x%50; i<800; i+=50) {
+  for(i = (size.width/2-x)%50; i<size.width; i+=dist) {
     ctx.beginPath();
     ctx.moveTo(i, 0);
-    ctx.lineTo(i, 600);
+    ctx.lineTo(i, size.height);
     ctx.lineWidth = 5;
     ctx.stroke();
   }
   var j;
-  for(j = -player.y%50; j<600; j+=50) {
+  for(j = (size.height/2-y)%50; j<size.height; j+=dist) {
     ctx.beginPath();
     ctx.moveTo(0, j);
-    ctx.lineTo(800, j);
+    ctx.lineTo(size.width, j);
     ctx.lineWidth = 5;
     ctx.stroke();
   }
+}
 
+function drawPlayers(x, y, players) {
+  var xdif = size.width/2-x;
+  var ydif = size.height/2-y;
   ctx.fillStyle = 'white';
-  var xdif = player.camX-player.x;
-  var ydif = player.camY-player.y;
   for (var i in players) {
     var p = players[i];
     ctx.beginPath();
     ctx.arc(p.x+xdif, p.y+ydif, 10, 0, 2 * Math.PI);
     ctx.fill();
   }
-});
+}

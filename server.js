@@ -20,10 +20,39 @@ server.listen(5000, function() {
 
 var players = {};
 
+var Core = function() {
+  var arr = [];
+  for(var i = 0; i<6; i++) {
+    arr[i] = true;
+  }
+  return arr;
+}
+
+var Body = function() {
+  var arr1 = [];
+  var arr2 = [];
+
+  for(var i = 0; i<18; i++) {
+    arr2[i] = true;
+  }
+  arr1[0] = arr2;
+
+  for(var i = 1; i<20; i++) {
+    arr2 = [];
+    for(var j = 0; j<18+12*i; j++) {
+      arr2[j] = false;
+    }
+    arr1[i] = arr2;
+  }
+  return arr1;
+}
+
 var Player = function(id) {
   var p = {
     x:400,
 	  y:300,
+    core:Core(),
+    body:Body(),
 	  camX:400,
 	  camY:300,
     aimX:0,
