@@ -10,11 +10,6 @@ socket.on('id', function(data) {
   console.log(id);
 });
 
-var loc = {
-  x: 400,
-  y: 300
-}
-
 var movement = {
   up: false,
   down: false,
@@ -69,7 +64,7 @@ socket.on('state', function(players) {
   if(id==null) {
     return;
   }
-  
+
   var player = players[id];
 
   ctx.fillStyle = 'black';
@@ -94,8 +89,8 @@ socket.on('state', function(players) {
   }
 
   ctx.fillStyle = 'white';
-  var xdif = 400-player.x;
-  var ydif = 300-player.y;
+  var xdif = player.camX-player.x;
+  var ydif = player.camY-player.y;
   for (var i in players) {
     var p = players[i];
     ctx.beginPath();
