@@ -11,7 +11,6 @@ socket.on('message', function(data) {
 
 socket.on('id', function(data) {
   id = data;
-  console.log(id);
 });
 
 var movement = {
@@ -92,7 +91,7 @@ socket.on('state', function(players) {
 });
 
 function drawGraph(x, y, dist) {
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = "#323232";
   var i;
   for(i = (size.width/2-x)%50; i<size.width; i+=dist) {
     ctx.beginPath();
@@ -114,11 +113,17 @@ function drawGraph(x, y, dist) {
 function drawPlayers(x, y, players) {
   var xdif = size.width/2-x;
   var ydif = size.height/2-y;
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = "#ab3c3c";
   for (var i in players) {
     var p = players[i];
     ctx.beginPath();
     ctx.arc(p.x+xdif, p.y+ydif, 10, 0, 2 * Math.PI);
     ctx.fill();
+  }
+}
+
+function drawCore(core) {
+  for(i in core) {
+
   }
 }

@@ -20,6 +20,10 @@ server.listen(5000, function() {
 
 var players = {};
 
+var maxVel = 5;
+var acceleration = 0.15;
+var resistance = 0.02;
+
 var Core = function() {
   var arr = [];
   for(var i = 0; i<6; i++) {
@@ -51,13 +55,12 @@ var Player = function(id) {
   var p = {
     x:400,
 	  y:300,
+    xVel:0,
+    yVel:0,
     core:Core(),
     body:Body(),
-	  camX:400,
-	  camY:300,
     aimX:0,
 	  aimY:0,
-	  vel: 5,
 	  id:id
   }
   return p;
@@ -71,24 +74,54 @@ io.on('connection', function(socket) {
 
   socket.on('movement', function(data) {
     var player = players[socket.id] || {};
+
     if(data.left) {
-      player.x-=5;
+      player.xVel-=acceleration;
     }
     if(data.right) {
-      player.x+=5;
+      player.xVel+=acceleration;
     }
     if(data.down) {
-      player.y+=5;
+      player.yVel+=acceleration;
     }
     if(data.up) {
-      player.y-=5;
+      player.yVel-=acceleration;
     }
+
+    checkVel(player);
+    addResistance(player);
+    updateLocation(player);
   });
 
   socket.on('disconnect', function() {
     delete(players[socket.id]);
   });
 });
+
+function checkVel(player) {
+  if(player.xVel>maxVel) {
+    player.xVel = maxVel;
+  }
+  else if(player.xVel<-maxVel) {
+    player.xVel = -maxVel;
+  }
+  if(player.yVel>maxVel) {
+    player.yVel = maxVel;
+  }
+  else if(player.yVel<-maxVel) {
+    player.yVel = -maxVel;
+  }
+}
+
+function addResistance(player) {
+  player.xVel*=(1-resistance);
+  player.yVel*=(1-resistance);
+}
+
+function updateLocation(player) {
+  player.x+=player.xVel;
+  player.y+=player.yVel;
+}
 
 setInterval(function() {
   io.sockets.emit('state', players);
