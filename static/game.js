@@ -1,9 +1,48 @@
 var socket = io();
 var id;
+
 var size = {
   width: window.innerWidth || document.body.clientWidth,
   height: window.innerHeight || document.body.clientHeight
 };
+
+var movement = {
+  up: false,
+  down: false,
+  left: false,
+  right: false
+}
+
+var side = 40;
+var height = (Math.sqrt(3)*side)/2;
+var reserve = initiateReserve();
+
+function initiateReserve() {
+  var i, j, k;
+  var arr1 = {};
+  var arr2 = {};
+  var arr3 = {};
+  for(i = 0; i<10; i++) {
+    arr2 = {};
+		for(j = 0; j<6; j++) {
+			var xref = Math.sin((j*60-30)*Math.PI/180)*(side/2+side*(i));
+			var yref = Math.cos((j*60-30)*Math.PI/180)*(side/2+side*(i));
+			var x = xref + Math.sin((j*60+60)*Math.PI/180)*(height/3);
+			var y = yref + Math.cos((j*60+60)*Math.PI/180)*(height/3);
+			for(k = 0 ; k<i*2; k++) {
+        arr3 = {x, y};
+        arr2[j*(i*2+1)+k]=arr3;
+				x += Math.sin((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
+				y += Math.cos((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
+			}
+      arr3 = {x, y};
+      arr2[j*(i*2+1)+i*2]=arr3;
+		}
+    arr1[i] = arr2;
+	}
+  console.log(arr1);
+  return arr1;
+}
 
 socket.on('message', function(data) {
   console.log(data);
@@ -12,13 +51,6 @@ socket.on('message', function(data) {
 socket.on('id', function(data) {
   id = data;
 });
-
-var movement = {
-  up: false,
-  down: false,
-  left: false,
-  right: false
-}
 
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
@@ -119,11 +151,38 @@ function drawPlayers(x, y, players) {
     ctx.beginPath();
     ctx.arc(p.x+xdif, p.y+ydif, 10, 0, 2 * Math.PI);
     ctx.fill();
+    drawBody(p);
   }
 }
 
-function drawCore(core) {
-  for(i in core) {
-
+function drawBody(player) {
+  for(i in player.body) {
+    for(j in player.body[i]) {
+      console.log(i + ", " + j);
+      //drawTriangle(player, i, j);
+    }
   }
+}
+
+function drawTriangle(player, i, j) {
+  ctx.fillStyle = "#ab3c3c";
+  if(i<1) {
+    ctx.fillStyle = "#323232";
+  }
+
+  var triangle = reserve[i][j];
+
+  var xcord = {};
+	var ycord = {};
+
+	for(var i = 0 ; i<3; i++) {
+		xcord[i] = player.x+2.0/3*height*Math.sin((180+((j+1)%2)*180+i*120)*Math.PI/180);
+		ycord[i] = player.y+2.0/3*height*Math.cos((180+((j+1)%2)*180+i*120)*Math.PI/180);
+	}
+
+  ctx.beginPath();
+  ctx.moveTo(xcord[0], ycord[0]);
+  ctx.lineTo(xcord[1], ycord[1]);
+  ctx.lineTo(xcord[2], ycord[2]);
+  ctx.fill();
 }

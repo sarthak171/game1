@@ -24,26 +24,18 @@ var maxVel = 5;
 var acceleration = 0.15;
 var resistance = 0.02;
 
-var Core = function() {
-  var arr = [];
-  for(var i = 0; i<6; i++) {
-    arr[i] = true;
-  }
-  return arr;
-}
-
 var Body = function() {
   var arr1 = [];
   var arr2 = [];
 
-  for(var i = 0; i<18; i++) {
+  for(var i = 0; i<24; i++) {
     arr2[i] = true;
   }
   arr1[0] = arr2;
 
-  for(var i = 1; i<20; i++) {
+  for(var i = 1; i<10; i++) {
     arr2 = [];
-    for(var j = 0; j<18+12*i; j++) {
+    for(var j = 0; j<24+12*i; j++) {
       arr2[j] = false;
     }
     arr1[i] = arr2;
@@ -57,7 +49,6 @@ var Player = function(id) {
 	  y:300,
     xVel:0,
     yVel:0,
-    core:Core(),
     body:Body(),
     aimX:0,
 	  aimY:0,
