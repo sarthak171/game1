@@ -18,6 +18,9 @@ server.listen(5000, function() {
   console.log('Starting server on port 5000');
 });
 
+var date = new Date();
+var toRadians = Math.PI/180;
+
 var gameSize = {
   x:1000,
   y:1000
@@ -30,6 +33,8 @@ var rooms = 2;
 var maxVel = 5;
 var acceleration = 0.15;
 var resistance = 0.02;
+
+var bulletVel = 10;
 
 var Body = function() {
   var arr1 = [];
@@ -64,6 +69,7 @@ var Player = function(id,room) {
     xVel:0,
     yVel:0,
     body:Body(),
+    bullets:{},
     aimX:0,
     aimY:0,
     room:room,
@@ -76,8 +82,10 @@ io.on('connection', function(socket) {
   socket.on('new player', function() {
     var room = Math.ceil(Math.random()*rooms);
     room_nums[room] = room;
+
     players[socket.id] = Player(socket.id,room);
     socket.join(room);
+
     var data = {};
     data[0] = gameSize;
     data[1] = room;
@@ -88,29 +96,50 @@ io.on('connection', function(socket) {
   socket.on('movement', function(data) {
     var player = players[socket.id] || {};
 
-    if(data.left) {
-      player.xVel-=acceleration;
-    }
-    if(data.right) {
-      player.xVel+=acceleration;
-    }
-    if(data.down) {
-      player.yVel+=acceleration;
-    }
-    if(data.up) {
-      player.yVel-=acceleration;
-    }
-
+    move(player, data);
+    moveBullets(player);
     checkBorders(player);
     checkVel(player);
     addResistance(player);
     updateLocation(player);
   });
 
+  socket.on('mouse', function(data) {
+    var player = players[socket.id] || {};
+    player.aimX = data.x;
+    player.aimY = data.y;
+    if(data.mouseDown == true) {
+      addShield(player);
+    }
+  });
+
   socket.on('disconnect', function() {
     delete(players[socket.id]);
   });
 });
+
+function move(player, data) {
+  if(data.left) {
+    player.xVel-=acceleration;
+  }
+  if(data.right) {
+    player.xVel+=acceleration;
+  }
+  if(data.down) {
+    player.yVel+=acceleration;
+  }
+  if(data.up) {
+    player.yVel-=acceleration;
+  }
+}
+
+function moveBullets(player) {
+  for(var i in player.bullets) {
+    var bullet = player.bullets[i];
+    bullet.x+=Math.sin(bullet.dir*toRadians)*bulletVel;
+    bullet.y+=Math.cos(bullet.dir*toRadians)*bulletVel;
+  }
+}
 
 function checkBorders(player) {
   if(player.x<0) {
@@ -164,6 +193,18 @@ function checkPlayers(room){
     }
   }
   return arr;
+}
+
+function addShield(player) {
+  var arr = player.body;
+  for(i in arr) {
+    for (j in arr[i]) {
+      if(arr[i][j] == false) {
+        arr[i][j] = true;
+        return;
+      }
+    }
+  }
 }
 
 setInterval(function() {
