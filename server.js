@@ -114,16 +114,20 @@ io.on('connection', function(socket) {
 
 function checkBorders(player) {
   if(player.x<0) {
-    player.xVel = Math.abs(player.xVel);
+    player.x = 0;
+    player.xVel = 0;
   }
   if(player.x>gameSize.x) {
-    player.xVel = -Math.abs(player.xVel);
+    player.x = gameSize.x;
+    player.xVel = 0;
   }
   if(player.y<0) {
-    player.yVel = Math.abs(player.yVel);
+    player.y = 0;
+    player.yVel = 0;
   }
   if(player.y>gameSize.y) {
-    player.yVel = -Math.abs(player.yVel);
+    player.y = gameSize.y;
+    player.yVel = 0;
   }
 }
 
