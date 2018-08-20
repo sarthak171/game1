@@ -26,25 +26,25 @@ function initiateReserve() {
   var arr3 = {};
   for(i = 0; i<10; i++) {
     arr2 = {};
-		for(j = 0; j<6; j++) {
-			var xref = Math.sin((j*60-30)*Math.PI/180)*(side/2+side*(i));
-			var yref = Math.cos((j*60-30)*Math.PI/180)*(side/2+side*(i));
-			var x = xref + Math.sin((j*60+60)*Math.PI/180)*(height/3);
-			var y = yref + Math.cos((j*60+60)*Math.PI/180)*(height/3);
-			for(k = 0 ; k<i*2; k++) {
+    for(j = 0; j<6; j++) {
+      var xref = Math.sin((j*60-30)*Math.PI/180)*(side/2+side*(i));
+      var yref = Math.cos((j*60-30)*Math.PI/180)*(side/2+side*(i));
+      var x = xref + Math.sin((j*60+60)*Math.PI/180)*(height/3);
+      var y = yref + Math.cos((j*60+60)*Math.PI/180)*(height/3);
+      for(k = 0 ; k<i*2; k++) {
         arr3 = {
           x:x,
           y:y
         };
         arr2[j*(i*2+1)+k]=arr3;
-				x += Math.sin((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
-				y += Math.cos((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
-			}
+        x += Math.sin((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
+        y += Math.cos((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
+      }
       arr3 = {x, y};
       arr2[j*(i*2+1)+i*2]=arr3;
-		}
+    }
     arr1[i] = arr2;
-	}
+  }
   return arr1;
 }
 
@@ -190,12 +190,12 @@ function drawTriangle(player, i, j, xdif, ydif) {
 
   var triangle = reserve[i][j];
   var xcord = {};
-	var ycord = {};
+  var ycord = {};
 
-	for(var i = 0 ; i<3; i++) {
-		xcord[i] = player.x+xdif+triangle.x+2.0/3*height*Math.sin((180+(j%2)*180+i*120)*Math.PI/180);
-		ycord[i] = player.y+ydif+triangle.y+2.0/3*height*Math.cos((180+(j%2)*180+i*120)*Math.PI/180);
-	}
+  for(var i = 0 ; i<3; i++) {
+    xcord[i] = player.x+xdif+triangle.x+2.0/3*height*Math.sin((180+(j%2)*180+i*120)*Math.PI/180);
+    ycord[i] = player.y+ydif+triangle.y+2.0/3*height*Math.cos((180+(j%2)*180+i*120)*Math.PI/180);
+  }
 
   ctx.beginPath();
   ctx.moveTo(xcord[0], ycord[0]);
