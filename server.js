@@ -60,14 +60,14 @@ var Body = function() {
 var Player = function(id,room) {
   var p = {
     x:400,
-	  y:300,
+    y:300,
     xVel:0,
     yVel:0,
     body:Body(),
     aimX:0,
-	  aimY:0,
+    aimY:0,
     room:room,
-	  id:id
+    id:id
   }
   return p;
 }
