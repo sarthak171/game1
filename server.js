@@ -1,5 +1,4 @@
-
-// Dependencies
+//Dependencies
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -19,8 +18,14 @@ server.listen(5000, function() {
   console.log('Starting server on port 5000');
 });
 
+var gameSize = {
+  x:1000,
+  y:1000
+}
+
 var players = {};
 var room_nums = {};
+var rooms = 2;
 
 var maxVel = 5;
 var acceleration = 0.15;
@@ -55,26 +60,29 @@ var Body = function() {
 var Player = function(id,room) {
   var p = {
     x:400,
-	  y:300,
+    y:300,
     xVel:0,
     yVel:0,
     body:Body(),
     aimX:0,
-	  aimY:0,
+    aimY:0,
     room:room,
-	  id:id
+    id:id
   }
   return p;
 }
 
 io.on('connection', function(socket) {
   socket.on('new player', function() {
-    var room = Math.ceil(Math.random()*2);
+    var room = Math.ceil(Math.random()*rooms);
     room_nums[room] = room;
     players[socket.id] = Player(socket.id,room);
     socket.join(room);
-    io.sockets.in(room).emit('room_num',room);
-    io.sockets.connected[socket.id].emit('id', socket.id);
+    var data = {};
+    data[0] = gameSize;
+    data[1] = room;
+    data[2] = socket.id;
+    io.sockets.connected[socket.id].emit('initial', data);
   });
 
   socket.on('movement', function(data) {
@@ -93,6 +101,7 @@ io.on('connection', function(socket) {
       player.yVel-=acceleration;
     }
 
+    checkBorders(player);
     checkVel(player);
     addResistance(player);
     updateLocation(player);
@@ -102,6 +111,21 @@ io.on('connection', function(socket) {
     delete(players[socket.id]);
   });
 });
+
+function checkBorders(player) {
+  if(player.x<0) {
+    player.xVel = Math.abs(player.xVel);
+  }
+  if(player.x>gameSize.x) {
+    player.xVel = -Math.abs(player.xVel);
+  }
+  if(player.y<0) {
+    player.yVel = Math.abs(player.yVel);
+  }
+  if(player.y>gameSize.y) {
+    player.yVel = -Math.abs(player.yVel);
+  }
+}
 
 function checkVel(player) {
   if(player.xVel>maxVel) {
