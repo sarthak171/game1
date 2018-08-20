@@ -28,18 +28,25 @@ var Body = function() {
   var arr1 = [];
   var arr2 = [];
 
-  for(var i = 0; i<24; i++) {
+  for(var i = 0; i<6; i++) {
     arr2[i] = true;
   }
   arr1[0] = arr2;
 
-  for(var i = 1; i<10; i++) {
+  arr2 = [];
+  for(var i = 0; i<18; i++) {
+    arr2[i] = true;
+  }
+  arr1[1] = arr2;
+
+  for(var i = 2; i<10; i++) {
     arr2 = [];
-    for(var j = 0; j<24+12*i; j++) {
+    for(var j = 0; j<6+12*i; j++) {
       arr2[j] = false;
     }
     arr1[i] = arr2;
   }
+
   return arr1;
 }
 
