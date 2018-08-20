@@ -30,7 +30,10 @@ function initiateReserve() {
 			var x = xref + Math.sin((j*60+60)*Math.PI/180)*(height/3);
 			var y = yref + Math.cos((j*60+60)*Math.PI/180)*(height/3);
 			for(k = 0 ; k<i*2; k++) {
-        arr3 = {x, y};
+        arr3 = {
+          x:x,
+          y:y
+        };
         arr2[j*(i*2+1)+k]=arr3;
 				x += Math.sin((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
 				y += Math.cos((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
@@ -40,7 +43,6 @@ function initiateReserve() {
 		}
     arr1[i] = arr2;
 	}
-  console.log(arr1);
   return arr1;
 }
 
@@ -147,42 +149,42 @@ function drawPlayers(x, y, players) {
   var ydif = size.height/2-y;
   ctx.fillStyle = "#ab3c3c";
   for (var i in players) {
-    var p = players[i];
-    ctx.beginPath();
-    ctx.arc(p.x+xdif, p.y+ydif, 10, 0, 2 * Math.PI);
-    ctx.fill();
-    drawBody(p);
+    drawBody(players[i], xdif, ydif);
   }
 }
 
-function drawBody(player) {
+function drawBody(player, xdif, ydif) {
   for(i in player.body) {
     for(j in player.body[i]) {
-      console.log(i + ", " + j);
-      //drawTriangle(player, i, j);
+      if(player.body[i][j] == true) {
+        drawTriangle(player, i, j, xdif, ydif);
+      }
     }
   }
 }
 
-function drawTriangle(player, i, j) {
+function drawTriangle(player, i, j, xdif, ydif) {
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'black';
   ctx.fillStyle = "#ab3c3c";
   if(i<1) {
     ctx.fillStyle = "#323232";
   }
 
   var triangle = reserve[i][j];
-
   var xcord = {};
 	var ycord = {};
 
 	for(var i = 0 ; i<3; i++) {
-		xcord[i] = player.x+2.0/3*height*Math.sin((180+((j+1)%2)*180+i*120)*Math.PI/180);
-		ycord[i] = player.y+2.0/3*height*Math.cos((180+((j+1)%2)*180+i*120)*Math.PI/180);
+		xcord[i] = player.x+xdif+triangle.x+2.0/3*height*Math.sin((180+(j%2)*180+i*120)*Math.PI/180);
+		ycord[i] = player.y+ydif+triangle.y+2.0/3*height*Math.cos((180+(j%2)*180+i*120)*Math.PI/180);
 	}
 
   ctx.beginPath();
   ctx.moveTo(xcord[0], ycord[0]);
   ctx.lineTo(xcord[1], ycord[1]);
   ctx.lineTo(xcord[2], ycord[2]);
+  ctx.closePath();
   ctx.fill();
+  ctx.stroke();
 }
