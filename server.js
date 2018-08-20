@@ -1,3 +1,4 @@
+
 // Dependencies
 var express = require('express');
 var http = require('http');
@@ -19,6 +20,7 @@ server.listen(5000, function() {
 });
 
 var players = {};
+var room_nums = {};
 
 var maxVel = 5;
 var acceleration = 0.15;
@@ -50,7 +52,7 @@ var Body = function() {
   return arr1;
 }
 
-var Player = function(id) {
+var Player = function(id,room) {
   var p = {
     x:400,
 	  y:300,
@@ -59,6 +61,7 @@ var Player = function(id) {
     body:Body(),
     aimX:0,
 	  aimY:0,
+    room:room,
 	  id:id
   }
   return p;
@@ -66,7 +69,11 @@ var Player = function(id) {
 
 io.on('connection', function(socket) {
   socket.on('new player', function() {
-    players[socket.id] = Player(socket.id);
+    var room = Math.ceil(Math.random()*2);
+    room_nums[room] = room;
+    players[socket.id] = Player(socket.id,room);
+    socket.join(room);
+    io.sockets.in(room).emit('room_num',room);
     io.sockets.connected[socket.id].emit('id', socket.id);
   });
 
@@ -121,6 +128,18 @@ function updateLocation(player) {
   player.y+=player.yVel;
 }
 
+function checkPlayers(room){
+  var arr = {};
+  for(var i in players){
+    if(players[i].room == room){
+      arr[i]=players[i];
+    }
+  }
+  return arr;
+}
+
 setInterval(function() {
-  io.sockets.emit('state', players);
+  for(var i in room_nums){
+    io.sockets.in(room_nums[i]).emit('state', checkPlayers(room_nums[i]));
+  }
 }, 1000 / 60);

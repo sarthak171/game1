@@ -1,5 +1,6 @@
 var socket = io();
 var id;
+var room_num;
 
 var size = {
   width: window.innerWidth || document.body.clientWidth,
@@ -53,6 +54,10 @@ socket.on('message', function(data) {
 socket.on('id', function(data) {
   id = data;
 });
+socket.on('room_num',function(data){
+  room_num= data;
+  console.log(room_num);
+})
 
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
@@ -108,17 +113,15 @@ var ctx = canvas.getContext('2d');
 
 socket.on('state', function(players) {
   if(id==null) {
+
     return;
   }
 
   canvas.width = size.width;
   canvas.height = size.height;
-
   var player = players[id];
-
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, size.width, size.height);
-
   drawGraph(player.x, player.y, 50);
   drawPlayers(player.x, player.y, players);
 
