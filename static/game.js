@@ -1,10 +1,12 @@
 var socket = io();
 var id;
+var room_num;
+var gameSize;
 
 var size = {
   width: window.innerWidth || document.body.clientWidth,
   height: window.innerHeight || document.body.clientHeight
-};
+}
 
 var movement = {
   up: false,
@@ -50,9 +52,15 @@ socket.on('message', function(data) {
   console.log(data);
 });
 
-socket.on('id', function(data) {
-  id = data;
+socket.on('initial', function(data) {
+  gameSize = data[0];
+  room_num = data[1]
+  id = data[2];
 });
+socket.on('room_num',function(data){
+  room_num= data;
+  console.log(room_num);
+})
 
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
@@ -108,17 +116,15 @@ var ctx = canvas.getContext('2d');
 
 socket.on('state', function(players) {
   if(id==null) {
+
     return;
   }
 
   canvas.width = size.width;
   canvas.height = size.height;
-
   var player = players[id];
-
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, size.width, size.height);
-
   drawGraph(player.x, player.y, 50);
   drawPlayers(player.x, player.y, players);
 
@@ -128,20 +134,31 @@ function drawGraph(x, y, dist) {
   ctx.strokeStyle = "#323232";
   var i;
   for(i = (size.width/2-x)%50; i<size.width; i+=dist) {
-    ctx.beginPath();
-    ctx.moveTo(i, 0);
-    ctx.lineTo(i, size.height);
-    ctx.lineWidth = 5;
-    ctx.stroke();
+    var loc = x+i-size.width/2;
+    if(loc>=0 && loc<=gameSize.x) {
+      var y1 = Math.max(0, size.height/2-y);
+      var y2 = Math.min(size.height, size.height/2+(gameSize.y-y));
+      drawLine(i, y1, i, y2, 5, "#323232");
+    }
   }
   var j;
   for(j = (size.height/2-y)%50; j<size.height; j+=dist) {
-    ctx.beginPath();
-    ctx.moveTo(0, j);
-    ctx.lineTo(size.width, j);
-    ctx.lineWidth = 5;
-    ctx.stroke();
+    var loc = y+j-size.height/2;
+    if(loc>=0 && loc<=gameSize.y) {
+      var x1 = Math.max(0, size.width/2-x);
+      var x2 = Math.min(size.width, size.width/2+(gameSize.x-x));
+    drawLine(x1, j, x2, j, 5, "#323232");
+    }
   }
+}
+
+function drawLine(x1, y1, x2, y2, width, color) {
+  ctx.lineWidth = width;
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
 }
 
 function drawPlayers(x, y, players) {

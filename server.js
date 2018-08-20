@@ -1,4 +1,4 @@
-// Dependencies
+//Dependencies
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -18,7 +18,14 @@ server.listen(5000, function() {
   console.log('Starting server on port 5000');
 });
 
+var gameSize = {
+  x:1000,
+  y:1000
+}
+
 var players = {};
+var room_nums = {};
+var rooms = 2;
 
 var maxVel = 5;
 var acceleration = 0.15;
@@ -50,7 +57,7 @@ var Body = function() {
   return arr1;
 }
 
-var Player = function(id) {
+var Player = function(id,room) {
   var p = {
     x:400,
 	  y:300,
@@ -59,6 +66,7 @@ var Player = function(id) {
     body:Body(),
     aimX:0,
 	  aimY:0,
+    room:room,
 	  id:id
   }
   return p;
@@ -66,8 +74,15 @@ var Player = function(id) {
 
 io.on('connection', function(socket) {
   socket.on('new player', function() {
-    players[socket.id] = Player(socket.id);
-    io.sockets.connected[socket.id].emit('id', socket.id);
+    var room = Math.ceil(Math.random()*rooms);
+    room_nums[room] = room;
+    players[socket.id] = Player(socket.id,room);
+    socket.join(room);
+    var data = {};
+    data[0] = gameSize;
+    data[1] = room;
+    data[2] = socket.id;
+    io.sockets.connected[socket.id].emit('initial', data);
   });
 
   socket.on('movement', function(data) {
@@ -86,6 +101,7 @@ io.on('connection', function(socket) {
       player.yVel-=acceleration;
     }
 
+    checkBorders(player);
     checkVel(player);
     addResistance(player);
     updateLocation(player);
@@ -95,6 +111,21 @@ io.on('connection', function(socket) {
     delete(players[socket.id]);
   });
 });
+
+function checkBorders(player) {
+  if(player.x<0) {
+    player.xVel = Math.abs(player.xVel);
+  }
+  if(player.x>gameSize.x) {
+    player.xVel = -Math.abs(player.xVel);
+  }
+  if(player.y<0) {
+    player.yVel = Math.abs(player.yVel);
+  }
+  if(player.y>gameSize.y) {
+    player.yVel = -Math.abs(player.yVel);
+  }
+}
 
 function checkVel(player) {
   if(player.xVel>maxVel) {
@@ -121,6 +152,18 @@ function updateLocation(player) {
   player.y+=player.yVel;
 }
 
+function checkPlayers(room){
+  var arr = {};
+  for(var i in players){
+    if(players[i].room == room){
+      arr[i]=players[i];
+    }
+  }
+  return arr;
+}
+
 setInterval(function() {
-  io.sockets.emit('state', players);
+  for(var i in room_nums){
+    io.sockets.in(room_nums[i]).emit('state', checkPlayers(room_nums[i]));
+  }
 }, 1000 / 60);
