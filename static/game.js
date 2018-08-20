@@ -1,7 +1,20 @@
+document.body.style.cursor = "crosshair";
+
 var socket = io();
 var id;
 var room_num;
+
+var toRadians = Math.PI/180;
 var gameSize;
+
+var xdif;
+var ydif;
+
+var mouse = {
+  x:0,
+  y:0,
+  mouseDown:false
+}
 
 var size = {
   width: window.innerWidth || document.body.clientWidth,
@@ -27,20 +40,27 @@ function initiateReserve() {
   for(i = 0; i<10; i++) {
     arr2 = {};
     for(j = 0; j<6; j++) {
-      var xref = Math.sin((j*60-30)*Math.PI/180)*(side/2+side*(i));
-      var yref = Math.cos((j*60-30)*Math.PI/180)*(side/2+side*(i));
-      var x = xref + Math.sin((j*60+60)*Math.PI/180)*(height/3);
-      var y = yref + Math.cos((j*60+60)*Math.PI/180)*(height/3);
+      var xref = Math.sin((j*60-30)*toRadians)*(side/2+side*(i));
+      var yref = Math.cos((j*60-30)*toRadians)*(side/2+side*(i));
+      var x = xref + Math.sin((j*60+60)*toRadians)*(height/3);
+      var y = yref + Math.cos((j*60+60)*toRadians)*(height/3);
       for(k = 0 ; k<i*2; k++) {
         arr3 = {
           x:x,
-          y:y
+          y:y,
+          dir:180+180*((j*(i*2+1)+k)%2),
+          height:height
         };
         arr2[j*(i*2+1)+k]=arr3;
-        x += Math.sin((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
-        y += Math.cos((j*60+120-60*(k%2))*Math.PI/180)*(2*height/3);
+        x += Math.sin((j*60+120-60*(k%2))*toRadians)*(2*height/3);
+        y += Math.cos((j*60+120-60*(k%2))*toRadians)*(2*height/3);
       }
-      arr3 = {x, y};
+      arr3 = {
+        x:x,
+        y:y,
+        dir:180+180*((j*(i*2+1)+k)%2),
+        height:height
+      };
       arr2[j*(i*2+1)+i*2]=arr3;
     }
     arr1[i] = arr2;
@@ -96,10 +116,26 @@ document.addEventListener('keyup', function(event) {
   }
 });
 
+document.onmousedown = function(event){
+  mouse.mouseDown = true;
+}
+
+document.onmouseup = function(event) {
+  mouse.mouseDown = false;
+}
+
+document.onmousemove = function (event) {
+  mouseLocation = {
+  	x:event.clientX,
+  	y:event.clientY
+  }
+}
+
 socket.emit('new player');
 setInterval(function() {
   updateSize();
   socket.emit('movement', movement);
+  socket.emit('mouse', mouse);
 }, 1000 / 60);
 
 function updateSize() {
@@ -116,37 +152,40 @@ var ctx = canvas.getContext('2d');
 
 socket.on('state', function(players) {
   if(id==null) {
-
     return;
   }
 
   canvas.width = size.width;
   canvas.height = size.height;
-  var player = players[id];
+
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, size.width, size.height);
-  drawGraph(player.x, player.y, 50);
-  drawPlayers(player.x, player.y, players);
+
+  var player = players[id];
+  xdif = size.width/2-player.x;
+  ydif = size.height/2-player.y;
+  drawGraph(50);
+  drawPlayers(players);
 
 });
 
-function drawGraph(x, y, dist) {
+function drawGraph(dist) {
   ctx.strokeStyle = "#323232";
   var i;
-  for(i = (size.width/2-x)%50; i<size.width; i+=dist) {
-    var loc = x+i-size.width/2;
+  for(i = xdif%50; i<size.width; i+=dist) {
+    var loc = i-xdif;
     if(loc>=0 && loc<=gameSize.x) {
-      var y1 = Math.max(0, size.height/2-y);
-      var y2 = Math.min(size.height, size.height/2+(gameSize.y-y));
+      var y1 = Math.max(0, ydif);
+      var y2 = Math.min(size.height, gameSize.y+ydif);
       drawLine(i, y1, i, y2, 5, "#323232");
     }
   }
   var j;
-  for(j = (size.height/2-y)%50; j<size.height; j+=dist) {
-    var loc = y+j-size.height/2;
+  for(j = ydif%50; j<size.height; j+=dist) {
+    var loc = j-ydif;
     if(loc>=0 && loc<=gameSize.y) {
-      var x1 = Math.max(0, size.width/2-x);
-      var x2 = Math.min(size.width, size.width/2+(gameSize.x-x));
+      var x1 = Math.max(0, xdif);
+      var x2 = Math.min(size.width, gameSize.x+xdif);
     drawLine(x1, j, x2, j, 5, "#323232");
     }
   }
@@ -161,40 +200,38 @@ function drawLine(x1, y1, x2, y2, width, color) {
   ctx.stroke();
 }
 
-function drawPlayers(x, y, players) {
-  var xdif = size.width/2-x;
-  var ydif = size.height/2-y;
-  ctx.fillStyle = "#ab3c3c";
+function drawPlayers(players) {
   for (var i in players) {
-    drawBody(players[i], xdif, ydif);
+    drawBody(players[i]);
   }
 }
 
-function drawBody(player, xdif, ydif) {
+function drawBody(player) {
   for(i in player.body) {
     for(j in player.body[i]) {
       if(player.body[i][j] == true) {
-        drawTriangle(player, i, j, xdif, ydif);
+        var triangle = reserve[i][j];
+        var color = "#ab3c3c";
+        if(i<1) {
+          color = "#323232";
+        }
+        drawTriangle(player, triangle, color);
       }
     }
   }
 }
 
-function drawTriangle(player, i, j, xdif, ydif) {
+function drawTriangle(player, triangle, color) {
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
-  ctx.fillStyle = "#ab3c3c";
-  if(i<1) {
-    ctx.fillStyle = "#323232";
-  }
+  ctx.fillStyle = color;
 
-  var triangle = reserve[i][j];
   var xcord = {};
   var ycord = {};
 
   for(var i = 0 ; i<3; i++) {
-    xcord[i] = player.x+xdif+triangle.x+2.0/3*height*Math.sin((180+(j%2)*180+i*120)*Math.PI/180);
-    ycord[i] = player.y+ydif+triangle.y+2.0/3*height*Math.cos((180+(j%2)*180+i*120)*Math.PI/180);
+    xcord[i] = player.x+xdif+triangle.x+2.0/3*triangle.height*Math.sin((triangle.dir+i*120)*toRadians);
+    ycord[i] = player.y+ydif+triangle.y+2.0/3*triangle.height*Math.cos((triangle.dir+i*120)*toRadians);
   }
 
   ctx.beginPath();
