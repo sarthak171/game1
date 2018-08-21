@@ -115,6 +115,7 @@ document.addEventListener('keyup', function(event) {
   }
 });
 
+
 document.onmousedown = function(event){
   mouse.mouseDown = true;
 }
@@ -129,6 +130,7 @@ document.onmousemove = function (event) {
   	y:event.clientY
   }
 }
+
 
 socket.emit('new player');
 setInterval(function() {
@@ -148,44 +150,48 @@ var canvas = document.getElementById('canvas');
 canvas.width = size.width;
 canvas.height = size.height;
 var ctx = canvas.getContext('2d');
-
 socket.on('state', function(players) {
   if(id==null) {
     return;
   }
-
+  var player = players[id];
+  var zoom_val=1.5/player.zoom;
+  console.log(zoom_val);
   canvas.width = size.width;
   canvas.height = size.height;
-
+  
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, size.width, size.height);
 
-  var player = players[id];
-  xdif = size.width/2-player.x;
-  ydif = size.height/2-player.y;
+  
+
+  xdif = (size.width/zoom_val)/2-player.x;
+  ydif = (size.height/zoom_val)/2-player.y;
+  ctx.save();
+  ctx.scale(zoom_val,zoom_val);
   drawGraph(50);
   drawPlayers(players);
+  ctx.restore();
   drawBullets(players);
-
 });
 
 function drawGraph(dist) {
   ctx.strokeStyle = "#323232";
   var i;
-  for(i = xdif%50; i<size.width; i+=dist) {
+  for(i = xdif%50; i<gameSize.x; i+=dist) {
     var loc = i-xdif;
     if(loc>=0 && loc<=gameSize.x) {
       var y1 = Math.max(0, ydif);
-      var y2 = Math.min(size.height, gameSize.y+ydif);
+      var y2 = Math.min(gameSize.x, gameSize.y+ydif);
       drawLine(i, y1, i, y2, 5, "#323232");
     }
   }
   var j;
-  for(j = ydif%50; j<size.height; j+=dist) {
+  for(j = ydif%50; j<gameSize.y; j+=dist) {
     var loc = j-ydif;
     if(loc>=0 && loc<=gameSize.y) {
       var x1 = Math.max(0, xdif);
-      var x2 = Math.min(size.width, gameSize.x+xdif);
+      var x2 = Math.min(gameSize.y, gameSize.x+xdif);
     drawLine(x1, j, x2, j, 5, "#323232");
     }
   }

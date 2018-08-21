@@ -21,8 +21,8 @@ server.listen(5000, function() {
 var toRadians = Math.PI/180;
 
 var gameSize = {
-  x:1001,
-  y:1001
+  x:5001,
+  y:5001
 }
 
 var players = {};
@@ -36,8 +36,8 @@ var resistance = 0.02;
 var bulletVel = 10;
 
 var Body = function() {
-  var arr1 = [];
-  var arr2 = [];
+  var arr1 = {};
+  var arr2 = {};
 
   for(var i = 0; i<6; i++) {
     arr2[i] = true;
@@ -71,6 +71,7 @@ var Player = function(id,room) {
     bullets:new Array(),
     aimX:0,
     aimY:0,
+    zoom:1.5,
     room:room,
     id:id
   }
@@ -108,7 +109,7 @@ io.on('connection', function(socket) {
     player.aimX = data.x;
     player.aimY = data.y;
     if(data.mouseDown == true) {
-      addBullet(player);
+      addShield(player);
     }
   });
 
@@ -206,6 +207,7 @@ function checkPlayers(room){
 function addShield(player) {
   var arr = player.body;
   for(i in arr) {
+  player.zoom+=.0008;
     for (j in arr[i]) {
       if(arr[i][j] == false) {
         arr[i][j] = true;
