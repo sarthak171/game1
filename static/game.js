@@ -79,7 +79,6 @@ socket.on('initial', function(data) {
 });
 socket.on('room_num',function(data){
   room_num= data;
-  console.log(room_num);
 })
 
 document.addEventListener('keydown', function(event) {
@@ -125,7 +124,7 @@ document.onmouseup = function(event) {
 }
 
 document.onmousemove = function (event) {
-  mouseLocation = {
+  mouse = {
   	x:event.clientX,
   	y:event.clientY
   }
@@ -166,6 +165,7 @@ socket.on('state', function(players) {
   ydif = size.height/2-player.y;
   drawGraph(50);
   drawPlayers(players);
+  drawBullets(players);
 
 });
 
@@ -215,13 +215,22 @@ function drawBody(player) {
         if(i<1) {
           color = "#323232";
         }
-        drawTriangle(player, triangle, color);
+        drawTriangle(player, triangle.x+player.x, triangle.y+player.y, triangle.dir, color);
       }
     }
   }
 }
 
-function drawTriangle(player, triangle, color) {
+function drawBullets(players) {
+  for(i in players) {
+    for (j in players[i].bullets) {
+      var triangle = players[i].bullets[j];
+      drawTriangle(players[i], triangle.x, triangle.y, triangle.dir, "#ab3c3c");
+    }
+  }
+}
+
+function drawTriangle(player, x, y, dir, color) {
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
   ctx.fillStyle = color;
@@ -230,8 +239,8 @@ function drawTriangle(player, triangle, color) {
   var ycord = {};
 
   for(var i = 0 ; i<3; i++) {
-    xcord[i] = player.x+xdif+triangle.x+2.0/3*triangle.height*Math.sin((triangle.dir+i*120)*toRadians);
-    ycord[i] = player.y+ydif+triangle.y+2.0/3*triangle.height*Math.cos((triangle.dir+i*120)*toRadians);
+    xcord[i] = xdif+x+2.0/3*height*Math.sin((dir+i*120)*toRadians);
+    ycord[i] = ydif+y+2.0/3*height*Math.cos((dir+i*120)*toRadians);
   }
 
   ctx.beginPath();

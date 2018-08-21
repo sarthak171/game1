@@ -18,12 +18,11 @@ server.listen(5000, function() {
   console.log('Starting server on port 5000');
 });
 
-var date = new Date();
 var toRadians = Math.PI/180;
 
 var gameSize = {
-  x:1000,
-  y:1000
+  x:1001,
+  y:1001
 }
 
 var players = {};
@@ -69,7 +68,7 @@ var Player = function(id,room) {
     xVel:0,
     yVel:0,
     body:Body(),
-    bullets:{},
+    bullets:new Array(),
     aimX:0,
     aimY:0,
     room:room,
@@ -109,7 +108,7 @@ io.on('connection', function(socket) {
     player.aimX = data.x;
     player.aimY = data.y;
     if(data.mouseDown == true) {
-      addShield(player);
+      addBullet(player);
     }
   });
 
@@ -158,6 +157,15 @@ function checkBorders(player) {
     player.y = gameSize.y;
     player.yVel = 0;
   }
+
+  for(i in player.bullets) {
+    if(player.bullets[i].x<0||player.bullets[i].x>gameSize.x) {
+      player.bullets.splice(i, 1);
+    }
+    else if(player.bullets[i].y<0||player.bullets[i].y>gameSize.y) {
+      player.bullets.splice(i, 1);
+    }
+  }
 }
 
 function checkVel(player) {
@@ -205,6 +213,28 @@ function addShield(player) {
       }
     }
   }
+}
+
+function addBullet(player) {
+  var arr = player.bullets;
+  var dir = getAngle(player.x, player.y, player.aimX, player.aimY);
+  var bullet = {
+    x:player.x,
+    y:player.y,
+    height:20,
+    dir:dir,
+    birth:new Date().getTime()
+  }
+  arr.push(bullet);
+
+}
+
+function getAngle(x1, y1, x2, y2) {
+  var delta_x = x2 - x1;
+  var delta_y = y2 - y1;
+  var theta_radians = Math.atan2(delta_y, delta_x)*toRadians;
+  console.log(theta_radians);
+  return theta_radians;
 }
 
 setInterval(function() {
