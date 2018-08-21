@@ -29,46 +29,6 @@ var movement = {
   right: false
 }
 
-var side = 40;
-var height = (Math.sqrt(3)*side)/2;
-var reserve = initiateReserve();
-
-function initiateReserve() {
-  var i, j, k;
-  var arr1 = {};
-  var arr2 = {};
-  var arr3 = {};
-  for(i = 0; i<10; i++) {
-    arr2 = {};
-    for(j = 0; j<6; j++) {
-      var xref = Math.sin((j*60-30)*toRadians)*(side/2+side*(i));
-      var yref = Math.cos((j*60-30)*toRadians)*(side/2+side*(i));
-      var x = xref + Math.sin((j*60+60)*toRadians)*(height/3);
-      var y = yref + Math.cos((j*60+60)*toRadians)*(height/3);
-      for(k = 0 ; k<i*2; k++) {
-        arr3 = {
-          x:x,
-          y:y,
-          dir:180+180*((j*(i*2+1)+k)%2),
-          height:height
-        };
-        arr2[j*(i*2+1)+k]=arr3;
-        x += Math.sin((j*60+120-60*(k%2))*toRadians)*(2*height/3);
-        y += Math.cos((j*60+120-60*(k%2))*toRadians)*(2*height/3);
-      }
-      arr3 = {
-        x:x,
-        y:y,
-        dir:180+180*((j*(i*2+1)+k)%2),
-        height:height
-      };
-      arr2[j*(i*2+1)+i*2]=arr3;
-    }
-    arr1[i] = arr2;
-  }
-  return arr1;
-}
-
 socket.on('message', function(data) {
   console.log(data);
 });
@@ -221,13 +181,13 @@ function drawPlayers(players) {
 function drawBody(player) {
   for(i in player.body) {
     for(j in player.body[i]) {
-      if(player.body[i][j] == true) {
-        var triangle = reserve[i][j];
+      if(player.body[i][j].alive == true) {
+        var triangle = player.body[i][j];
         var color = "#ab3c3c";
         if(i<1) {
           color = "#323232";
         }
-        drawTriangle(player, triangle.x+player.x, triangle.y+player.y, triangle.dir, color);
+        drawTriangle(player, triangle.x+player.x, triangle.y+player.y, triangle.dir, triangle.height, color);
       }
     }
   }
@@ -237,12 +197,12 @@ function drawBullets(players) {
   for(i in players) {
     for (j in players[i].bullets) {
       var triangle = players[i].bullets[j];
-      drawTriangle(players[i], triangle.x, triangle.y, triangle.dir, "#ab3c3c");
+      drawTriangle(players[i], triangle.x, triangle.y, triangle.dir, triangle.height, "#ab3c3c");
     }
   }
 }
 
-function drawTriangle(player, x, y, dir, color) {
+function drawTriangle(player, x, y, dir, height, color) {
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
   ctx.fillStyle = color;
