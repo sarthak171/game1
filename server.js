@@ -71,6 +71,7 @@ var Player = function(id,room) {
     bullets:new Array(),
     aimX:0,
     aimY:0,
+    click:true,
     zoom:1.5,
     room:room,
     id:id
@@ -106,10 +107,10 @@ io.on('connection', function(socket) {
 
   socket.on('mouse', function(data) {
     var player = players[socket.id] || {};
-    player.aimX = data.x;
-    player.aimY = data.y;
+    player.aimX = data.x+player.x;
+    player.aimY = data.y+player.y;
     if(data.mouseDown == true) {
-      addShield(player);
+      addBullet(player);
     }
   });
 
@@ -207,10 +208,10 @@ function checkPlayers(room){
 function addShield(player) {
   var arr = player.body;
   for(i in arr) {
-  player.zoom+=.0008;
     for (j in arr[i]) {
       if(arr[i][j] == false) {
         arr[i][j] = true;
+        player.zoom+=.0015;
         return;
       }
     }
@@ -232,11 +233,9 @@ function addBullet(player) {
 }
 
 function getAngle(x1, y1, x2, y2) {
-  var delta_x = x2 - x1;
-  var delta_y = y2 - y1;
-  var theta_radians = Math.atan2(delta_y, delta_x)*toRadians;
-  console.log(theta_radians);
-  return theta_radians;
+  var dir = 360-Math.atan2(y2-y1, x2-x1)/toRadians+90;
+  console.log(dir);
+  return dir;
 }
 
 setInterval(function() {
