@@ -11,6 +11,8 @@ var zoom_val;
 var xdif;
 var ydif;
 
+var reserve;
+
 var mouse = {
   x:0,
   y:0,
@@ -35,8 +37,9 @@ socket.on('message', function(data) {
 
 socket.on('initial', function(data) {
   gameSize = data[0];
-  room_num = data[1]
-  id = data[2];
+  room_num = data[1];
+  reserve = data[2];
+  id = data[3];
 });
 socket.on('room_num',function(data){
   room_num= data;
@@ -181,8 +184,8 @@ function drawPlayers(players) {
 function drawBody(player) {
   for(i in player.body) {
     for(j in player.body[i]) {
-      if(player.body[i][j].alive == true) {
-        var triangle = player.body[i][j];
+      if(player.body[i][j] == true) {
+        var triangle = reserve[i][j];
         var color = "#ab3c3c";
         if(i<1) {
           color = "#323232";

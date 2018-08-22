@@ -38,6 +38,32 @@ var side = 40;
 var height = (Math.sqrt(3)*side)/2;
 
 var Body = function() {
+  var arr1 = {};
+  var arr2 = {};
+
+  for(var i = 0; i<6; i++) {
+    arr2[i] = true;
+  }
+  arr1[0] = arr2;
+
+  arr2 = [];
+  for(var i = 0; i<18; i++) {
+    arr2[i] = true;
+  }
+  arr1[1] = arr2;
+
+  for(var i = 2; i<10; i++) {
+    arr2 = [];
+    for(var j = 0; j<6+12*i; j++) {
+      arr2[j] = false;
+    }
+    arr1[i] = arr2;
+  }
+
+  return arr1;
+}
+
+var Reserve = function() {
   var i, j, k;
   var arr1 = {};
   var arr2 = {};
@@ -54,8 +80,7 @@ var Body = function() {
           x:x,
           y:y,
           dir:180+180*((j*(i*2+1)+k)%2),
-          height:height,
-          alive:false
+          height:height
         };
         arr2[j*(i*2+1)+k]=arr3;
         x += Math.sin((j*60+120-60*(k%2))*toRadians)*(2*height/3);
@@ -65,8 +90,7 @@ var Body = function() {
         x:x,
         y:y,
         dir:180+180*((j*(i*2+1)+k)%2),
-        height:height,
-        alive:false
+        height:height
       };
       arr2[j*(i*2+1)+i*2]=arr3;
     }
@@ -75,24 +99,13 @@ var Body = function() {
   return arr1;
 }
 
-function instantiate(body) {
-  for(var i = 0; i<6; i++) {
-    body[0][i].alive = true;
-  }
-
-  for(var i = 0; i<18; i++) {
-    body[1][i].alive = true;
-  }
-  return body;
-}
-
 var Player = function(id,room) {
   var p = {
     x:400,
     y:300,
     xVel:0,
     yVel:0,
-    body:instantiate(Body()),
+    body:Body(),
     bullets:new Array(),
     fire_stall:350,
     fire_time:new Date().getTime(),
@@ -110,14 +123,14 @@ io.on('connection', function(socket) {
   socket.on('new player', function() {
     var room = Math.ceil(Math.random()*rooms);
     room_nums[room] = room;
-
     players[socket.id] = Player(socket.id,room);
     socket.join(room);
 
     var data = {};
     data[0] = gameSize;
     data[1] = room;
-    data[2] = socket.id;
+    data[2] = Reserve();
+    data[3] = socket.id;
     io.sockets.connected[socket.id].emit('initial', data);
   });
 
@@ -277,7 +290,7 @@ function checkPlayers(room){
 setInterval(function() {
   for(var i in room_nums){
     var room = checkPlayers(room_nums[i]);
-    //update(room);
+    update(room);
     io.sockets.in(room_nums[i]).emit('state', room);
   }
 }, 1000 / 60);
@@ -306,14 +319,16 @@ function bulletsToPlayer(player1, player2) {
   body = player2.body;
   for(i in body) {
     for(j in body[i]) {
-      if(body[i][j].alive == true) {
+      if(body[i][j] == true) {
         for(k in bullets) {
           triangle1 = bullets[k];
-          triangle2 = body[i][j];
+          triangle2 = Reserve()[i][j];
           if(tr_intersect(
             triangle1.x, triangle1.y, triangle1.height,
             triangle2.x+player2.x, triangle2.y+player2.y, triangle2.height)) {
             bullets.splice(k, 1);
+            body[i][j] = false;
+            addShield(player1);
           }
         }
       }
