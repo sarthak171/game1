@@ -249,10 +249,6 @@ function addShield(player) {
 }
 
 function addBullet(player) {
-  if(player.bullets == null) {
-    return;
-  }
-
   if(new Date().getTime()-player.fire_time < player.fire_stall) {
     return;
   }
@@ -302,8 +298,10 @@ function update(room) {
 function collisions(room) {
   for(i in players) {
     for (j in players) {
-      if(j>i) {
-        checkCollision(players[i], players[j]);
+      if(players[i]!=null&&players[j]!=null) {
+        if(j>i) {
+          checkCollision(players[i], players[j]);
+        }
       }
     }
   }
