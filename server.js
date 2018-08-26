@@ -264,7 +264,6 @@ function addBullet(player) {
     birth:new Date().getTime()
   }
   arr.push(bullet);
-
 }
 
 function getAngle(x1, y1, x2, y2) {

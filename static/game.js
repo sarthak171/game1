@@ -83,20 +83,20 @@ document.addEventListener('keyup', function(event) {
 document.onmousedown = function(event){
   mouse.mouseDown = true;
 
-  mouse.x = event.clientX-(size.width/zoom_val)/2;
-  mouse.y = event.clientY-(size.height/zoom_val)/2;
+  mouse.x = (event.clientX-size.width/2)/zoom_val;
+  mouse.y = (event.clientY-size.height/2)/zoom_val;
 }
 
 document.onmouseup = function(event) {
   mouse.mouseDown = false;
 
-  mouse.x = event.clientX-(size.width/zoom_val)/2;
-  mouse.y = event.clientY-(size.height/zoom_val)/2;
+  mouse.x = (event.clientX-size.width/2)/zoom_val;
+  mouse.y = (event.clientY-size.height/2)/zoom_val;
 }
 
 document.onmousemove = function (event) {
-  mouse.x = event.clientX-(size.width/zoom_val)/2;
-  mouse.y = event.clientY-(size.height/zoom_val)/2;
+  mouse.x = (event.clientX-size.width/2)/zoom_val;
+  mouse.y = (event.clientY-size.height/2)/zoom_val;
 }
 
 
@@ -140,8 +140,9 @@ socket.on('state', function(players) {
   ctx.scale(zoom_val,zoom_val);
   drawGraph(50, zoom_val);
   drawPlayers(players);
-  ctx.restore();
   drawBullets(players);
+
+  ctx.restore();
 });
 
 function drawGraph(dist, zoom_val) {
@@ -190,7 +191,7 @@ function drawBody(player) {
         if(i<1) {
           color = "#323232";
         }
-        drawTriangle(player, triangle.x+player.x, triangle.y+player.y, triangle.dir, triangle.height, color);
+        drawTriangle(triangle.x+player.x, triangle.y+player.y, triangle.dir, triangle.height, color);
       }
     }
   }
@@ -200,12 +201,12 @@ function drawBullets(players) {
   for(i in players) {
     for (j in players[i].bullets) {
       var triangle = players[i].bullets[j];
-      drawTriangle(players[i], triangle.x, triangle.y, triangle.dir, triangle.height, "#ab3c3c");
+      drawTriangle(triangle.x, triangle.y, triangle.dir, triangle.height, "#ab3c3c");
     }
   }
 }
 
-function drawTriangle(player, x, y, dir, height, color) {
+function drawTriangle(x, y, dir, height, color) {
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
   ctx.fillStyle = color;
