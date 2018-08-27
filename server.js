@@ -36,8 +36,6 @@ var acceleration = 0.15;
 var resistance = 0.02;
 
 var bulletVel = 10;
-var side = 40;
-var height = (Math.sqrt(3)*side)/2;
 
 var Body = function() {
   var arr1 = {};
@@ -65,42 +63,6 @@ var Body = function() {
   return arr1;
 }
 
-var Reserve = function() {
-  var i, j, k;
-  var arr1 = {};
-  var arr2 = {};
-  var arr3 = {};
-  for(i = 0; i<10; i++) {
-    arr2 = {};
-    for(j = 0; j<6; j++) {
-      var xref = Math.sin((j*60-30)*toRadians)*(side/2+side*(i));
-      var yref = Math.cos((j*60-30)*toRadians)*(side/2+side*(i));
-      var x = xref + Math.sin((j*60+60)*toRadians)*(height/3);
-      var y = yref + Math.cos((j*60+60)*toRadians)*(height/3);
-      for(k = 0 ; k<i*2; k++) {
-        arr3 = {
-          x:x,
-          y:y,
-          dir:180+180*((j*(i*2+1)+k)%2),
-          height:height
-        };
-        arr2[j*(i*2+1)+k]=arr3;
-        x += Math.sin((j*60+120-60*(k%2))*toRadians)*(2*height/3);
-        y += Math.cos((j*60+120-60*(k%2))*toRadians)*(2*height/3);
-      }
-      arr3 = {
-        x:x,
-        y:y,
-        dir:180+180*((j*(i*2+1)+k)%2),
-        height:height
-      };
-      arr2[j*(i*2+1)+i*2]=arr3;
-    }
-    arr1[i] = arr2;
-  }
-  return arr1;
-}
-
 var Player = function(id,room) {
   var p = {
     x:400,
@@ -109,11 +71,8 @@ var Player = function(id,room) {
     yVel:0,
     body:Body(),
     bullets:new Array(),
-    fire_stall:350,
-    fire_time:new Date().getTime(),
     aimX:0,
     aimY:0,
-    click:true,
     zoom:1.5,
     room:room,
     id:id
@@ -125,14 +84,14 @@ io.on('connection', function(socket) {
   socket.on('new player', function() {
     var room = Math.ceil(Math.random()*rooms);
     room_nums[room] = room;
+
     players[socket.id] = Player(socket.id,room);
     socket.join(room);
 
     var data = {};
     data[0] = gameSize;
     data[1] = room;
-    data[2] = Reserve();
-    data[3] = socket.id;
+    data[2] = socket.id;
     io.sockets.connected[socket.id].emit('initial', data);
   });
 
@@ -149,13 +108,10 @@ io.on('connection', function(socket) {
 
   socket.on('mouse', function(data) {
     var player = players[socket.id] || {};
-    player.aimX = data.x+player.x;
-    player.aimY = data.y+player.y;
+    player.aimX = data.x;
+    player.aimY = data.y;
     if(data.mouseDown == true) {
-<<<<<<< HEAD
       addShield(player);
-=======
->>>>>>> 72d53d91e7c84ee2505333fab7fa40cc06d71406
       addBullet(player);
     }
   });
@@ -241,44 +197,6 @@ function updateLocation(player) {
   player.y+=player.yVel;
 }
 
-function addShield(player) {
-  var arr = player.body;
-  for(i in arr) {
-    for (j in arr[i]) {
-      if(arr[i][j] == false) {
-        arr[i][j] = true;
-        player.zoom+=.0015;
-        return;
-      }
-    }
-  }
-}
-
-function addBullet(player) {
-  if(new Date().getTime()-player.fire_time < player.fire_stall) {
-    return;
-  }
-
-  player.fire_time = new Date().getTime();
-  var arr = player.bullets;
-  var dir = getAngle(player.x, player.y, player.aimX, player.aimY);
-  var bullet = {
-    x:player.x,
-    y:player.y,
-    height:height,
-    dir:dir,
-    birth:new Date().getTime()
-  }
-  arr.push(bullet);
-
-}
-
-function getAngle(x1, y1, x2, y2) {
-  var dir = 90-Math.atan2(y2-y1, x2-x1)/toRadians;
-  dir%=360;
-  return dir;
-}
-
 function checkPlayers(room){
   var arr = {};
   for(var i in players){
@@ -289,64 +207,44 @@ function checkPlayers(room){
   return arr;
 }
 
+function addShield(player) {
+  var arr = player.body;
+  for(i in arr) {
+  player.zoom+=.0008;
+    for (j in arr[i]) {
+      if(arr[i][j] == false) {
+        arr[i][j] = true;
+        return;
+      }
+    }
+  }
+}
+
+function addBullet(player) {
+  var arr = player.bullets;
+  var dir = getAngle(player.x, player.y, player.aimX, player.aimY);
+  var bullet = {
+    x:player.x,
+    y:player.y,
+    height:20,
+    dir:dir,
+    birth:new Date().getTime()
+  }
+  arr.push(bullet);
+
+}
+
+function getAngle(x1, y1, x2, y2) {
+  var delta_x = x2 - x1;
+  var delta_y = y2 - y1;
+  var theta_radians = Math.atan2(delta_y, delta_x)*toRadians;
+  console.log(theta_radians);
+  return theta_radians;
+}
+
 setInterval(function() {
   for(var i in room_nums){
-    var room = checkPlayers(room_nums[i]);
-    update(room);
-    io.sockets.in(room_nums[i]).emit('state', room);
+    io.sockets.in(room_nums[i]).emit('state', checkPlayers(room_nums[i]));
   }
 }, 1000 / 60);
 
-<<<<<<< HEAD
-=======
-function update(room) {
-  collisions(room);
-}
-
-function collisions(room) {
-  for(i in players) {
-    for (j in players) {
-      if(players[i]!=null&&players[j]!=null) {
-        if(j>i) {
-          checkCollision(players[i], players[j]);
-        }
-      }
-    }
-  }
-}
-
-function checkCollision(player1, player2) {
-  bulletsToPlayer(player1, player2);
-  bulletsToPlayer(player2, player1);
-}
-
-function bulletsToPlayer(player1, player2) {
-  bullets = player1.bullets;
-  body = player2.body;
-  for(i in body) {
-    for(j in body[i]) {
-      if(body[i][j] == true) {
-        for(k in bullets) {
-          triangle1 = bullets[k];
-          triangle2 = Reserve()[i][j];
-          if(tr_intersect(
-            triangle1.x, triangle1.y, triangle1.height,
-            triangle2.x+player2.x, triangle2.y+player2.y, triangle2.height)) {
-            bullets.splice(k, 1);
-            body[i][j] = false;
-            addShield(player1);
-          }
-        }
-      }
-    }
-  }
-}
-
-function tr_intersect(x1, y1, height1, x2, y2, height2) {
-  var dif = Math.hypot(x2 - x1, y2 - y1);
-  if(dif<=0.85*(height1+height2)/2) {
-    return true;
-  }
-  return false;
-}
->>>>>>> 72d53d91e7c84ee2505333fab7fa40cc06d71406
