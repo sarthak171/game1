@@ -35,6 +35,47 @@ function start(){
     right: false
   }
 
+  var side = 40;
+  var height = (Math.sqrt(3)*side)/2;
+  var reserve = initiateReserve();
+  var zoom_val;
+
+  function initiateReserve() {
+    var i, j, k;
+    var arr1 = {};
+    var arr2 = {};
+    var arr3 = {};
+    for(i = 0; i<10; i++) {
+      arr2 = {};
+      for(j = 0; j<6; j++) {
+        var xref = Math.sin((j*60-30)*toRadians)*(side/2+side*(i));
+        var yref = Math.cos((j*60-30)*toRadians)*(side/2+side*(i));
+        var x = xref + Math.sin((j*60+60)*toRadians)*(height/3);
+        var y = yref + Math.cos((j*60+60)*toRadians)*(height/3);
+        for(k = 0 ; k<i*2; k++) {
+          arr3 = {
+            x:x,
+            y:y,
+            dir:180+180*((j*(i*2+1)+k)%2),
+            height:height
+          };
+          arr2[j*(i*2+1)+k]=arr3;
+          x += Math.sin((j*60+120-60*(k%2))*toRadians)*(2*height/3);
+          y += Math.cos((j*60+120-60*(k%2))*toRadians)*(2*height/3);
+        }
+        arr3 = {
+          x:x,
+          y:y,
+          dir:180+180*((j*(i*2+1)+k)%2),
+          height:height
+        };
+        arr2[j*(i*2+1)+i*2]=arr3;
+      }
+      arr1[i] = arr2;
+    }
+    return arr1;
+  }
+
   socket.on('message', function(data) {
     console.log(data);
   });
@@ -211,7 +252,8 @@ function start(){
     }
   }
 
-  function drawTriangle(x, y, dir, height, color) {
+
+  function drawTriangle(player, x, y, dir, color) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'black';
     ctx.fillStyle = color;
