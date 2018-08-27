@@ -8,7 +8,9 @@ var server = http.Server(app);
 var io = socketIO(server);
 
 app.set('port', 5000);
+app.use(express.static(__dirname));
 app.use('/static', express.static(__dirname + '/static'));
+app.use('/static/img', express.static(__dirname + '/static/img'));
 
 app.get('/', function(request, response) {
   response.sendFile(path.join(__dirname, 'index.html'));
@@ -110,6 +112,7 @@ io.on('connection', function(socket) {
     player.aimY = data.y;
     if(data.mouseDown == true) {
       addShield(player);
+      addBullet(player);
     }
   });
 
@@ -244,3 +247,4 @@ setInterval(function() {
     io.sockets.in(room_nums[i]).emit('state', checkPlayers(room_nums[i]));
   }
 }, 1000 / 60);
+

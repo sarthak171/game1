@@ -1,20 +1,19 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>A Multiplayer Game</title>
-    <style>
-      canvas {
-        display:block;
-        border:0px;
-      }
-      body {
-        margin:0px;
-        padding:0px;
-      }
-    </style>
+    
     <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" type='text/css' href="/styles.css">
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <form id="forms">
+      <input type="text" id="nickname" name="Nickname" value="Player">
+      <input type="button" id="howPlay" value="Controls">
+      <input type="button" id="btnStart" onclick="change_css(); start()" value="Play">
+    </form>
+    
+    <canvas id="canvas" width="window.innerWidth" height="window.innerHeight"></canvas> 
+    <script src="/static/game.js"></script>
   </body>
-  <script src="/static/game.js"></script>
 </html>
