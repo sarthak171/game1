@@ -253,7 +253,7 @@ function start(){
   }
 
 
-  function drawTriangle(player, x, y, dir, color) {
+  function drawTriangle(x, y, dir, height, color) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'black';
     ctx.fillStyle = color;
