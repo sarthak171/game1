@@ -338,7 +338,7 @@ function overlay(player) {
   body = player.body;
   bullets = player.bullets;
   for(i in bullets) {
-    if(!bullets[i].live) {}
+    if(!bullets[i].live) {
       for(j in body) {
 
       }
