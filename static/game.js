@@ -7,7 +7,6 @@ function showControls(){
   document.getElementById('forms').style.cssText = 'visibility: hidden;';
   b.id = 'home';
   document.getElementById('home').style.cssText = "background-color: rgba(0,135,138,.8); border: 1px solid blue; border-radius: 6px; padding-top: 8px;  color: white; text-align: center; cursor: pointer; margin-top: 50%; width: 50%;"
-
 }
 function start(){
   document.body.style.cursor = "crosshair";
@@ -261,7 +260,11 @@ function start(){
   }
 
 
+<<<<<<< HEAD
   function drawTriangle(x, y, dir,height, color) {
+=======
+  function drawTriangle(x, y, dir, height, color) {
+>>>>>>> 1b47f93c02c91eb1a25ff90fb362048d48f0a120
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'black';
     ctx.fillStyle = color;
