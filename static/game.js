@@ -1,13 +1,14 @@
 function change_css(){
-    document.getElementById('forms').style.cssText = 'visibility: hidden;';
+    document.getElementById('main').style.cssText = 'visibility: hidden;';
 }
+
 function showControls(){
-  document.getElementById('canvas').style.cssText = "background-image: url('http://localhost:5000/static/controls.png')";
   var b = document.createElement('BUTTON');
-  document.getElementById('forms').style.cssText = 'visibility: hidden;';
+  document.getElementById('main').style.cssText = 'visibility: hidden;';
   //b.id = 'home';
   //document.getElementById(b.id).style.cssText = "background-color: rgba(0,135,138,.8); border: 1px solid blue; border-radius: 6px; padding-top: 8px;  color: white; text-align: center; cursor: pointer; margin-top: 50%; width: 50%;"
 }
+
 function start(){
   document.body.style.cursor = "crosshair";
 

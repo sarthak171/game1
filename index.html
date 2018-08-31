@@ -6,11 +6,14 @@
     <link rel="stylesheet" type='text/css' href="/static/styles.css">
   </head>
   <body>
-    <form id="forms">
-      <input type="text" id="nickname" name="Nickname" value="Player">
-      <input type="button" id="howPlay" value="Controls" onclick="showControls()">
-      <input type="button" id="btnStart" onclick="change_css(); start()" value="Play">
-    </form>
+    <div id="main">
+      <form id="form">
+        <input type="text" id="nickname" name="Nickname" value="Player">
+        <input type="button" id="ctrls" onclick="showControls()" value="Controls">
+        <input type="button" id="startb" onclick="change_css(); start()" value="Play">
+        <input type="button" id="credits" onclick="" value="Credits">
+      </form>
+    </div>
 
     <canvas id="canvas" width="window.innerWidth" height="window.innerHeight"></canvas>
     <script src="/static/game.js"></script>

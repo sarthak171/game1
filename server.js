@@ -340,7 +340,7 @@ function overlay(player) {
   for(i in bullets) {
     if(!bullets[i].live) {
       for(j in body) {
-
+        
       }
     }
   }
