@@ -1,10 +1,10 @@
 function change_css(){
-    document.getElementById('main').style.cssText = 'visibility: hidden;';
+    document.getElementById('main').style.visibility = 'hidden';
 }
 
 function showControls(){
   var b = document.createElement('BUTTON');
-  document.getElementById('main').style.cssText = 'visibility: hidden;';
+  document.getElementById('main').style.visibility = 'hidden';
   //b.id = 'home';
   //document.getElementById(b.id).style.cssText = "background-color: rgba(0,135,138,.8); border: 1px solid blue; border-radius: 6px; padding-top: 8px;  color: white; text-align: center; cursor: pointer; margin-top: 50%; width: 50%;"
 }
