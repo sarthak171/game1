@@ -109,6 +109,8 @@ var Player = function(id,room) {
     bullets:new Array(),
     fire_stall:350,
     fire_time:new Date().getTime(),
+    dash_stall:10000,
+    dash_time:new Date().getTime(),
     aimX:0,
     aimY:0,
     click:true,
@@ -143,6 +145,10 @@ io.on('connection', function(socket) {
     checkVel(player);
     addResistance(player);
     updateLocation(player);
+
+    if(data.dash == true) {
+      dash(player);
+    }
   });
 
   socket.on('mouse', function(data) {
@@ -249,6 +255,7 @@ function addShield(player) {
 }
 
 function addBullet(player) {
+
   if(new Date().getTime()-player.fire_time < player.fire_stall) {
     return;
   }
@@ -264,6 +271,16 @@ function addBullet(player) {
     birth:new Date().getTime()
   }
   arr.push(bullet);
+}
+
+function dash(player) {
+  if(new Date().getTime()-player.dash_time < player.dash_stall) {
+    return;
+  }
+
+  player.dash_time = new Date().getTime();
+  player.x = player.aimX;
+  player.y = player.aimY;
 }
 
 function getAngle(x1, y1, x2, y2) {
@@ -340,7 +357,7 @@ function overlay(player) {
   for(i in bullets) {
     if(!bullets[i].live) {
       for(j in body) {
-        
+
       }
     }
   }

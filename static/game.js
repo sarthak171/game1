@@ -29,7 +29,8 @@ function start(){
     up: false,
     down: false,
     left: false,
-    right: false
+    right: false,
+    dash: false
   }
 
   var side = 40;
@@ -101,6 +102,9 @@ function start(){
       case 83: // S
         movement.down = true;
         break;
+      case 70: //F
+        movement.dash = true;
+        break;
     }
   });
 
@@ -117,6 +121,9 @@ function start(){
         break;
       case 83: // S
         movement.down = false;
+        break;
+      case 70: //F
+        movement.dash = false;
         break;
     }
   });
@@ -226,11 +233,16 @@ function start(){
   }
 
   function drawBody(player) {
+    var c = "#f1c232";
+    if(player.id == id) {
+      c = "#ab3c3c";
+    }
+
     for(i in player.body) {
       for(j in player.body[i]) {
         if(player.body[i][j] == true) {
           var triangle = reserve[i][j];
-          var color = "#ab3c3c";
+          var color = c;
           if(i<1) {
             color = "#323232";
           }
@@ -242,9 +254,13 @@ function start(){
 
   function drawBullets(players) {
     for(i in players) {
+      var c = "#f1c232";
+      if(players[i].id == id) {
+        c = "#ab3c3c";
+      }
       for (j in players[i].bullets) {
         var triangle = players[i].bullets[j];
-        drawTriangle(triangle.x, triangle.y, triangle.dir, triangle.height, "#ab3c3c");
+        drawTriangle(triangle.x, triangle.y, triangle.dir, triangle.height, c);
       }
     }
   }
