@@ -312,11 +312,11 @@ function update(room) {
 }
 
 function collisions(room) {
-  for(i in players) {
-    for (j in players) {
-      if(players[i]!=null&&players[j]!=null) {
+  for(i in room) {
+    for (j in room) {
+      if(room[i]!=null&&room[j]!=null) {
         if(j>i) {
-          checkCollisions(players[i], players[j]);
+          checkCollisions(room[i], room[j]);
         }
       }
     }
@@ -345,19 +345,6 @@ function bulletsToPlayer(player1, player2) {
             addShield(player1);
           }
         }
-      }
-    }
-  }
-}
-
-//maybe implement?
-function overlay(player) {
-  body = player.body;
-  bullets = player.bullets;
-  for(i in bullets) {
-    if(!bullets[i].live) {
-      for(j in body) {
-
       }
     }
   }

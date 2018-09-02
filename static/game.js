@@ -1,4 +1,4 @@
-function start(){
+function game(){
   document.body.style.cursor = "crosshair";
 
   var socket = io();
@@ -11,8 +11,6 @@ function start(){
   var zoom_val;
   var xdif;
   var ydif;
-
-  var reserve;
 
   var mouse = {
     x:0,
@@ -149,7 +147,11 @@ function start(){
   }
 
   socket.emit('new player');
-  setInterval(function() {
+
+  var updatesId = setInterval(function() {
+
+    console.log('interval');
+
     updateSize();
     socket.emit('movement', movement);
     socket.emit('mouse', mouse);
@@ -168,6 +170,9 @@ function start(){
   var ctx = canvas.getContext('2d');
 
   socket.on('state', function(players) {
+
+    console.log('state');
+
     if(id==null) {
       return;
     }
@@ -189,6 +194,7 @@ function start(){
     drawGraph(50, zoom_val);
     drawPlayers(players);
     drawBullets(players);
+    checkDeath(players);
 
     ctx.restore();
   });
@@ -286,5 +292,21 @@ function start(){
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  }
+
+  function checkDeath(players) {
+    for (i in players[id].body[0]) {
+      if(players[id].body[0][i] == true) {
+        return;
+      }
+    }
+
+    stop();
+  }
+
+  function stop() {
+    clearInterval(updatesId);
+    socket.emit('disconnect');
+    //mainShowCss();
   }
 }

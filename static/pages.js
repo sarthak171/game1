@@ -6,6 +6,12 @@ function clear() {
   document.getElementById('creditspage').style.visibility = 'hidden';
 }
 
+function mainShowCss() {
+  document.getElementById('box1').style.visibility = 'visible';
+  document.getElementById('main').style.visibility = 'visible';
+  document.getElementById('form').style.visibility = 'visible';
+}
+
 function startCss() {
   clear();
 }
