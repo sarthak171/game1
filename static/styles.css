@@ -7,7 +7,7 @@ body,html {
 }
 
 canvas{
-	background-image: url('load_screen.png');
+	background-image: url('background.png');
 	height: 100%;
 	width: 100%;
 	display: block;
@@ -15,6 +15,28 @@ canvas{
 	background-repeat: no-repeat;
 	background-size: cover;
 	z-index: 1;
+}
+
+#box1 {
+  position: absolute;
+  height: 35vw;
+  width: 25vw;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+}
+
+#logo {
+  content:url('logo.png');
+
+  position:absolute;
+  height:28/3.75vw;
+  width:100%;
+  top:0%;
+  left:50%;
+  transform: translate(-50%, 0);
+
+  z-index: 2;
 }
 
 .c1 {
@@ -26,20 +48,78 @@ canvas{
 
 #main {
   position: absolute;
-  height:30vw;
-  width:25vw;
-  top:50%;
+  height:75%;
+  width:100%;
+  top:65%;
   left:50%;
   transform: translate(-50%, -50%);
 
-  z-index:2;
+  z-index:3;
   margin: 0 auto;
+}
+
+#ctrlspage {
+  font-family: Courier New, Courier New, sans-serif;
+  color: white;
+  text-align: center;
+
+  visibility:hidden;
+}
+
+#ctrlshead {
+  font-size:2vw;
+  position: absolute;
+  height: 3vw;
+  width: 20vw;
+  top: 18%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#ctrlstxt {
+  white-space: pre;
+  font-size:1.5vw;
+  position: absolute;
+  height: 12vw;
+  width: 20vw;
+  top:40%;
+  left:50%;
+  transform: translate(-50%, -50%);
+}
+
+#creditspage {
+  font-family: Courier New, Courier New, sans-serif;
+  color: white;
+  text-align: center;
+
+  visibility:hidden;
+}
+
+#creditshead {
+  font-size:2vw;
+  position: absolute;
+  height: 3vw;
+  width: 20vw;
+  top: 18%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#creditstxt {
+  white-space: pre;
+  font-size:1vw;
+  position: absolute;
+  height: 12vw;
+  width: 20vw;
+  top:40%;
+  left:50%;
+  transform: translate(-50%, -50%);
 }
 
 input[type=text]{
 	border: 1px solid #f1c232;
 	background-color: white;
-	color: rgb(125,125,125);
+	color: #7d7d7d;
   font-size:2vw;
   font-family: Courier New, Courier New, sans-serif;
 
@@ -81,6 +161,24 @@ input[type=button]{
 }
 
 #credits {
+  position: absolute;
+  height:4vw;
+  width:18vw;
+  top:78%;
+  left:50%;
+  transform: translate(-50%, -50%);
+}
+
+#ctrlsback {
+  position: absolute;
+  height:4vw;
+  width:18vw;
+  top:78%;
+  left:50%;
+  transform: translate(-50%, -50%);
+}
+
+#creditsback {
   position: absolute;
   height:4vw;
   width:18vw;
