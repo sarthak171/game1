@@ -149,9 +149,6 @@ function game(){
   socket.emit('new player');
 
   var updatesId = setInterval(function() {
-
-    console.log('interval');
-
     updateSize();
     socket.emit('movement', movement);
     socket.emit('mouse', mouse);
@@ -170,10 +167,7 @@ function game(){
   var ctx = canvas.getContext('2d');
 
   socket.on('state', function(players) {
-
-    console.log('state');
-
-    if(id==null) {
+    if(id==null||players[id] == null) {
       return;
     }
 
@@ -306,7 +300,7 @@ function game(){
 
   function stop() {
     clearInterval(updatesId);
-    socket.emit('disconnect');
-    //mainShowCss();
+    socket.emit('dc');
+    mainShowCss();
   }
 }

@@ -27,7 +27,7 @@ var gameSize = {
 
 var players = {};
 var room_nums = {};
-var rooms = 2;
+var rooms = 1;
 
 var maxVel = 5;
 var acceleration = 0.15;
@@ -161,6 +161,9 @@ io.on('connection', function(socket) {
   });
 
   socket.on('disconnect', function() {
+    delete(players[socket.id]);
+  });
+  socket.on('dc', function() {
     delete(players[socket.id]);
   });
 });
