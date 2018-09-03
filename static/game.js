@@ -1,14 +1,4 @@
-function change_css(){
-    document.getElementById('forms').style.cssText = 'visibility: hidden;';
-}
-function showControls(){
-  document.getElementById('canvas').style.cssText = "background-image: url('http://localhost:5000/static/controls.png')";
-  var b = document.createElement('BUTTON');
-  document.getElementById('forms').style.cssText = 'visibility: hidden;';
-  b.id = 'home';
-  document.getElementById('home').style.cssText = "background-color: rgba(0,135,138,.8); border: 1px solid blue; border-radius: 6px; padding-top: 8px;  color: white; text-align: center; cursor: pointer; margin-top: 50%; width: 50%;"
-}
-function start(){
+function game(){
   document.body.style.cursor = "crosshair";
 
   var socket = io();
@@ -17,12 +7,10 @@ function start(){
 
   var toRadians = Math.PI/180;
   var gameSize;
-  
+
   var zoom_val;
   var xdif;
   var ydif;
-
-  var reserve;
 
   var mouse = {
     x:0,
@@ -39,7 +27,8 @@ function start(){
     up: false,
     down: false,
     left: false,
-    right: false
+    right: false,
+    dash: false
   }
 
   var side = 40;
@@ -111,6 +100,9 @@ function start(){
       case 83: // S
         movement.down = true;
         break;
+      case 70: //F
+        movement.dash = true;
+        break;
     }
   });
 
@@ -127,6 +119,9 @@ function start(){
         break;
       case 83: // S
         movement.down = false;
+        break;
+      case 70: //F
+        movement.dash = false;
         break;
     }
   });
@@ -152,7 +147,8 @@ function start(){
   }
 
   socket.emit('new player');
-  setInterval(function() {
+
+  var updatesId = setInterval(function() {
     updateSize();
     socket.emit('movement', movement);
     socket.emit('mouse', mouse);
@@ -171,7 +167,7 @@ function start(){
   var ctx = canvas.getContext('2d');
 
   socket.on('state', function(players) {
-    if(id==null) {
+    if(id==null||players[id] == null) {
       return;
     }
 
@@ -192,6 +188,7 @@ function start(){
     drawGraph(50, zoom_val);
     drawPlayers(players);
     drawBullets(players);
+    checkDeath(players);
 
     ctx.restore();
   });
@@ -236,11 +233,16 @@ function start(){
   }
 
   function drawBody(player) {
+    var c = "#f1c232";
+    if(player.id == id) {
+      c = "#ab3c3c";
+    }
+
     for(i in player.body) {
       for(j in player.body[i]) {
         if(player.body[i][j] == true) {
           var triangle = reserve[i][j];
-          var color = "#ab3c3c";
+          var color = c;
           if(i<1) {
             color = "#323232";
           }
@@ -252,19 +254,19 @@ function start(){
 
   function drawBullets(players) {
     for(i in players) {
+      var c = "#f1c232";
+      if(players[i].id == id) {
+        c = "#ab3c3c";
+      }
       for (j in players[i].bullets) {
         var triangle = players[i].bullets[j];
-        drawTriangle(triangle.x, triangle.y, triangle.dir, triangle.height, "#ab3c3c");
+        drawTriangle(triangle.x, triangle.y, triangle.dir, triangle.height, c);
       }
     }
   }
 
 
-<<<<<<< HEAD
-  function drawTriangle(x, y, dir,height, color) {
-=======
   function drawTriangle(x, y, dir, height, color) {
->>>>>>> 1b47f93c02c91eb1a25ff90fb362048d48f0a120
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'black';
     ctx.fillStyle = color;
@@ -284,5 +286,21 @@ function start(){
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  }
+
+  function checkDeath(players) {
+    for (i in players[id].body[0]) {
+      if(players[id].body[0][i] == true) {
+        return;
+      }
+    }
+
+    stop();
+  }
+
+  function stop() {
+    clearInterval(updatesId);
+    socket.emit('dc');
+    mainShowCss();
   }
 }

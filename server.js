@@ -27,7 +27,7 @@ var gameSize = {
 
 var players = {};
 var room_nums = {};
-var rooms = 2;
+var rooms = 1;
 
 var maxVel = 5;
 var acceleration = 0.15;
@@ -109,6 +109,8 @@ var Player = function(id,room) {
     bullets:new Array(),
     fire_stall:350,
     fire_time:new Date().getTime(),
+    dash_stall:10000,
+    dash_time:new Date().getTime(),
     aimX:0,
     aimY:0,
     click:true,
@@ -143,6 +145,10 @@ io.on('connection', function(socket) {
     checkVel(player);
     addResistance(player);
     updateLocation(player);
+
+    if(data.dash == true) {
+      dash(player);
+    }
   });
 
   socket.on('mouse', function(data) {
@@ -155,6 +161,9 @@ io.on('connection', function(socket) {
   });
 
   socket.on('disconnect', function() {
+    delete(players[socket.id]);
+  });
+  socket.on('dc', function() {
     delete(players[socket.id]);
   });
 });
@@ -249,6 +258,7 @@ function addShield(player) {
 }
 
 function addBullet(player) {
+
   if(new Date().getTime()-player.fire_time < player.fire_stall) {
     return;
   }
@@ -264,6 +274,16 @@ function addBullet(player) {
     birth:new Date().getTime()
   }
   arr.push(bullet);
+}
+
+function dash(player) {
+  if(new Date().getTime()-player.dash_time < player.dash_stall) {
+    return;
+  }
+
+  player.dash_time = new Date().getTime();
+  player.x = player.aimX;
+  player.y = player.aimY;
 }
 
 function getAngle(x1, y1, x2, y2) {
@@ -295,11 +315,11 @@ function update(room) {
 }
 
 function collisions(room) {
-  for(i in players) {
-    for (j in players) {
-      if(players[i]!=null&&players[j]!=null) {
+  for(i in room) {
+    for (j in room) {
+      if(room[i]!=null&&room[j]!=null) {
         if(j>i) {
-          checkCollisions(players[i], players[j]);
+          checkCollisions(room[i], room[j]);
         }
       }
     }
@@ -328,19 +348,6 @@ function bulletsToPlayer(player1, player2) {
             addShield(player1);
           }
         }
-      }
-    }
-  }
-}
-
-//maybe implement?
-function overlay(player) {
-  body = player.body;
-  bullets = player.bullets;
-  for(i in bullets) {
-    if(!bullets[i].live) {}
-      for(j in body) {
-
       }
     }
   }
