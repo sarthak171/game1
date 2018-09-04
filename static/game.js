@@ -3,6 +3,7 @@ function game(){
 
   var socket = io();
   var id;
+  var player;
   var room_num;
 
   var toRadians = Math.PI/180;
@@ -167,11 +168,12 @@ function game(){
   var ctx = canvas.getContext('2d');
 
   socket.on('state', function(players) {
-    if(id==null||players[id] == null) {
+    if(id==null) {
       return;
     }
-
-    var player = players[id];
+    if(players[id]!=null) {
+      player = players[id];
+    }
 
     zoom_val=1.5/player.zoom;
     canvas.width = size.width;

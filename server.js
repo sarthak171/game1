@@ -247,6 +247,9 @@ function updateLocation(player) {
 function addShield(player) {
   var arr = player.body;
   for(i in arr) {
+    if(i==0) {
+      i++;
+    }
     for (j in arr[i]) {
       if(arr[i][j] == false) {
         arr[i][j] = true;
